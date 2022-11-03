@@ -1,0 +1,8 @@
+Website = "https://ariumdev.com"
+
+[Details]
+Icon = "Icon.png"
+Name = "Pomodoro"
+ID = "com.itdagestan.pomodoro"
+Version = "0.1.0"
+Build = 1

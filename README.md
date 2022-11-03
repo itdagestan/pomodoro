@@ -1,2 +1,2 @@
 # pomodoro
-crossplatform GUI pomodoro timer writing on Go
+Cross-platform GUI pomodoro timer writing on Go
