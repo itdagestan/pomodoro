@@ -29,32 +29,38 @@ func (s *PomodoroTimerService) Start(ctx context.Context, pomodoroTimer *entity.
 }
 
 func (s *PomodoroTimerService) Pause(pomodoroTimer *entity.PomodoroTimer,
-	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, updateStarPauseButton chan bool) {
+	stopStartedTimer chan bool, stopUpdateTimer chan bool, updateStarPauseButton chan bool) {
 	if pomodoroTimer.IsTimerPause() {
 		return
 	}
+	if pomodoroTimer.IsTimerStart() {
+		stopStartedTimer <- true
+		stopUpdateTimer <- true
+	}
 	pomodoroTimer.Pause()
-	stopStartedTimer <- true
-	stopUpdateStartedTimer <- true
 	updateStarPauseButton <- true
 }
 
 func (s *PomodoroTimerService) Stop(pomodoroTimer *entity.PomodoroTimer,
-	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, updateStarPauseButton chan bool) {
+	stopStartedTimer chan bool, stopUpdateTimer chan bool, updateStarPauseButton chan bool) {
 	if pomodoroTimer.IsTimerStop() {
 		return
 	}
+	if pomodoroTimer.IsTimerStart() {
+		stopStartedTimer <- true
+		stopUpdateTimer <- true
+	}
 	pomodoroTimer.Stop()
-	stopStartedTimer <- true
-	stopUpdateStartedTimer <- true
 	updateStarPauseButton <- true
 }
 
 func (s *PomodoroTimerService) Skip(pomodoroTimer *entity.PomodoroTimer, skipTimer chan bool,
-	updateStarPauseButton chan bool) {
+	stopUpdateTimer chan bool) {
 	pomodoroTimer.Skip()
 	skipTimer <- true
-	updateStarPauseButton <- true
+	if pomodoroTimer.IsTimerStart() {
+		stopUpdateTimer <- true
+	}
 }
 
 func (s *PomodoroTimerService) Cancel(ctx context.Context, pomodoroTimer *entity.PomodoroTimer, cancelTimer chan bool) {

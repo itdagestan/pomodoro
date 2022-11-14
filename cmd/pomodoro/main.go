@@ -22,7 +22,7 @@ func main() {
 	defer ticker.Stop()
 
 	stopStartedTimer := make(chan bool, 1)
-	stopUpdateStartedTimer := make(chan bool, 1)
+	stopUpdateTimer := make(chan bool, 1)
 	skipTimer := make(chan bool, 1)
 	updateStarPauseButton := make(chan bool, 1)
 
@@ -36,18 +36,18 @@ func main() {
 			go func() {
 				services.PomodoroTimer.Start(ctx, pomodoroTimer, stopStartedTimer, updateStarPauseButton)
 				timerWidget.SetText(pomodoroTimer.GetTimerAsString())
-				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateStartedTimer)
+				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateTimer)
 			}()
 		}
 		if pomodoroTimer.IsTimerStart() {
-			services.PomodoroTimer.Pause(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
+			services.PomodoroTimer.Pause(pomodoroTimer, stopStartedTimer, stopUpdateTimer,
 				updateStarPauseButton)
 		}
 	})
 
 	stopButton := widget.NewButton("Stop", func() {
 		if pomodoroTimer.IsTimerStart() || pomodoroTimer.IsTimerPause() {
-			services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
+			services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateTimer,
 				updateStarPauseButton)
 			timerWidget.SetText("Stopped")
 		}
@@ -56,12 +56,12 @@ func main() {
 	skipButton := widget.NewButton("Skip", func() {
 		go func() {
 			if pomodoroTimer.IsTimerStart() {
-				services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
+				services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateTimer,
 					updateStarPauseButton)
 			}
 			if pomodoroTimer.CanTimerStart() {
 				services.PomodoroTimer.Start(ctx, pomodoroTimer, stopStartedTimer, updateStarPauseButton)
-				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateStartedTimer)
+				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateTimer)
 			}
 		}()
 		services.PomodoroTimer.Skip(pomodoroTimer, skipTimer, updateStarPauseButton)
