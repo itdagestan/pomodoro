@@ -18,7 +18,9 @@ func main() {
 	pomodoroTimer := entity.NewPomodoroTimer()
 	services := service.NewService()
 
-	stopTicker := make(chan bool, 1)
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+
 	stopStartedTimer := make(chan bool, 1)
 	stopUpdateStartedTimer := make(chan bool, 1)
 	skipTimer := make(chan bool, 1)
@@ -32,23 +34,20 @@ func main() {
 	startPauseButton := widget.NewButton("Start", func() {
 		if pomodoroTimer.CanTimerStart() {
 			go func() {
-				ticker := time.NewTicker(time.Second)
-				defer ticker.Stop()
 				services.PomodoroTimer.Start(ctx, pomodoroTimer, stopStartedTimer, updateStarPauseButton)
 				timerWidget.SetText(pomodoroTimer.GetTimerAsString())
 				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateStartedTimer)
-				<-stopTicker
 			}()
 		}
 		if pomodoroTimer.IsTimerStart() {
-			services.PomodoroTimer.Pause(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer, stopTicker,
+			services.PomodoroTimer.Pause(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
 				updateStarPauseButton)
 		}
 	})
 
 	stopButton := widget.NewButton("Stop", func() {
 		if pomodoroTimer.IsTimerStart() || pomodoroTimer.IsTimerPause() {
-			services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer, stopTicker,
+			services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
 				updateStarPauseButton)
 			timerWidget.SetText("Stopped")
 		}
@@ -57,15 +56,12 @@ func main() {
 	skipButton := widget.NewButton("Skip", func() {
 		go func() {
 			if pomodoroTimer.IsTimerStart() {
-				services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer, stopTicker,
+				services.PomodoroTimer.Stop(pomodoroTimer, stopStartedTimer, stopUpdateStartedTimer,
 					updateStarPauseButton)
 			}
 			if pomodoroTimer.CanTimerStart() {
-				ticker := time.NewTicker(time.Second)
-				defer ticker.Stop()
 				services.PomodoroTimer.Start(ctx, pomodoroTimer, stopStartedTimer, updateStarPauseButton)
 				services.Gui.UpdateTimer(ctx, pomodoroTimer, ticker, timerWidget, stopUpdateStartedTimer)
-				<-stopTicker
 			}
 		}()
 		services.PomodoroTimer.Skip(pomodoroTimer, skipTimer, updateStarPauseButton)

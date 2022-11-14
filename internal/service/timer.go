@@ -29,27 +29,24 @@ func (s *PomodoroTimerService) Start(ctx context.Context, pomodoroTimer *entity.
 }
 
 func (s *PomodoroTimerService) Pause(pomodoroTimer *entity.PomodoroTimer,
-	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, stopTicker chan bool, updateStarPauseButton chan bool) {
+	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, updateStarPauseButton chan bool) {
 	if pomodoroTimer.IsTimerPause() {
 		return
 	}
 	pomodoroTimer.Pause()
 	stopStartedTimer <- true
 	stopUpdateStartedTimer <- true
-	stopTicker <- true
 	updateStarPauseButton <- true
 }
 
 func (s *PomodoroTimerService) Stop(pomodoroTimer *entity.PomodoroTimer,
-	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, stopTicker chan bool,
-	updateStarPauseButton chan bool) {
+	stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, updateStarPauseButton chan bool) {
 	if pomodoroTimer.IsTimerStop() {
 		return
 	}
 	pomodoroTimer.Stop()
 	stopStartedTimer <- true
 	stopUpdateStartedTimer <- true
-	stopTicker <- true
 	updateStarPauseButton <- true
 }
 

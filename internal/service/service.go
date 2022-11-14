@@ -11,10 +11,9 @@ type PomodoroTimer interface {
 	Start(ctx context.Context, pomodoroTimer *entity.PomodoroTimer, stopStartedTimer chan bool,
 		updateStarPauseButton chan bool)
 	Pause(pomodoroTimer *entity.PomodoroTimer, stopStartedTimer chan bool, stopUpdateStartedTimer chan bool,
-		stopTicker chan bool, updateStarPauseButton chan bool)
-	Stop(pomodoroTimer *entity.PomodoroTimer,
-		stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, stopTicker chan bool,
 		updateStarPauseButton chan bool)
+	Stop(pomodoroTimer *entity.PomodoroTimer,
+		stopStartedTimer chan bool, stopUpdateStartedTimer chan bool, updateStarPauseButton chan bool)
 	Skip(pomodoroTimer *entity.PomodoroTimer, skipTimer chan bool, updateStarPauseButton chan bool)
 	Cancel(ctx context.Context, pomodoroTimer *entity.PomodoroTimer, stopTimer chan bool)
 }
