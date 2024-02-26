@@ -28,7 +28,7 @@ func main() {
 
 	a := app.New()
 	w := a.NewWindow("Pomodoro")
-	timerWidget := widget.NewLabel("00:00")
+	timerWidget := widget.NewLabel(time.Time{}.Add(pomodoroTimer.DurationToStop).Format("04:05"))
 	counterWidget := widget.NewLabel("Counter 0")
 
 	startPauseButton := widget.NewButton("Start", func() {

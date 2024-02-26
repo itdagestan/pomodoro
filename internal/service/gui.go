@@ -4,7 +4,6 @@ import (
 	"context"
 	"fyne.io/fyne/v2/widget"
 	"github.com/itdagestan/pomodoro/internal/entity"
-	"log"
 	"strconv"
 	"time"
 )
@@ -32,17 +31,15 @@ func (s *GuiService) UpdateSkipCounter(ctx context.Context, pomodoroTimer *entit
 
 func (s *GuiService) UpdateTimer(ctx context.Context, pomodoroTimer *entity.PomodoroTimer,
 	ticker *time.Ticker, timerWidget *widget.Label, stopUpdateTimer chan bool) {
-	log.Println("update timer")
 	go func() {
 		for {
 			select {
 			case <-ticker.C:
-				log.Println("ticker")
+				pomodoroTimer.DurationToStop -= time.Second
 				timerWidget.SetText(pomodoroTimer.GetTimerAsString())
 			case <-ctx.Done():
 				return
 			case <-stopUpdateTimer:
-				log.Println("stop update timer")
 				return
 			}
 		}

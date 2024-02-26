@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+const defaultDurationToStop = time.Minute * 1
+const defaultShortRelaxDuration = time.Minute * 10
+const defaultLongRelaxDuration = time.Minute * 30
+const defaultCountToLongSkip = 4
+
 type PomodoroTimer struct {
 	StartedAt          time.Time
 	EndedAt            time.Time
@@ -21,21 +26,22 @@ func NewPomodoroTimer() *PomodoroTimer {
 	return &PomodoroTimer{
 		StartedAt:          time.Time{},
 		EndedAt:            time.Time{},
-		DurationToStop:     time.Minute * 30,
-		ShortRelaxDuration: time.Minute * 10,
-		LongRelaxDuration:  time.Minute * 60,
-		CountToLongSkip:    4,
+		DurationToStop:     defaultDurationToStop,
+		ShortRelaxDuration: defaultShortRelaxDuration,
+		LongRelaxDuration:  defaultLongRelaxDuration,
+		CountToLongSkip:    defaultCountToLongSkip,
 		CountOfDone:        0,
 		IsStop:             true,
-		IsPause:            true,
+		IsPause:            false,
 		PausedAt:           time.Time{},
 	}
 }
 
 func (p *PomodoroTimer) StartAfterPause() {
 	diff := p.PausedAt.Sub(p.StartedAt)
-	p.StartedAt = time.Now()
-	p.EndedAt = time.Now().Add(p.DurationToStop - diff)
+	now := time.Now()
+	p.StartedAt = now
+	p.DurationToStop -= diff
 	p.IsStop = false
 	p.IsPause = false
 	p.PausedAt = time.Time{}
@@ -43,7 +49,7 @@ func (p *PomodoroTimer) StartAfterPause() {
 
 func (p *PomodoroTimer) StartAfterStop() {
 	p.StartedAt = time.Now()
-	p.EndedAt = time.Now().Add(p.DurationToStop)
+	p.DurationToStop = defaultDurationToStop
 	p.IsStop = false
 	p.IsPause = false
 	p.PausedAt = time.Time{}
@@ -85,8 +91,5 @@ func (p *PomodoroTimer) IncrementCountOfDone() {
 }
 
 func (p *PomodoroTimer) GetTimerAsString() string {
-	diff := p.EndedAt.Sub(time.Now())
-	out := time.Time{}.Add(diff)
-
-	return out.Format("04:05")
+	return time.Time{}.Add(p.DurationToStop).Format("04:05")
 }
